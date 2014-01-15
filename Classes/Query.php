@@ -588,7 +588,7 @@ class Tx_Solr_Query {
 			}
 		}
 
-		$this->addFilter($accessFilter);
+//		$this->addFilter($accessFilter);
 	}
 
 	/**
