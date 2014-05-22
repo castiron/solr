@@ -1,0 +1,366 @@
+
+plugin.tx_solr {
+
+	enabled = 1
+
+	enableDebugMode = 0
+
+	general {
+		dateFormat.date = d.m.Y H:i
+	}
+
+	solr {
+		scheme = {$plugin.tx_solr.solr.scheme}
+		host   = {$plugin.tx_solr.solr.host}
+		port   = {$plugin.tx_solr.solr.port}
+		path   = {$plugin.tx_solr.solr.path}
+	}
+
+	templateFiles {
+		frequentSearches = EXT:solr/Resources/Templates/PiFrequentSearches/frequentsearches.htm
+		pagebrowser      = EXT:solr/Resources/Templates/PiResults/pagebrowser.htm
+		results          = EXT:solr/Resources/Templates/PiResults/results.htm
+		search           = EXT:solr/Resources/Templates/PiSearch/search.htm
+	}
+
+	cssFiles {
+		results     = EXT:solr/Resources/Css/PiResults/results.css
+		pagebrowser = EXT:pagebrowse/res/styles_min.css
+		ui          = EXT:solr/Resources/Css/JQueryUi/jquery-ui.custom.css
+	}
+
+	javascriptFiles {
+		loadIn = footer
+
+		library = EXT:solr/Resources/JavaScript/JQuery/jquery.min.js
+
+		ui = EXT:solr/Resources/JavaScript/JQuery/jquery-ui.core.min.js
+
+		ui.autocomplete = EXT:solr/Resources/JavaScript/JQuery/jquery-ui.autocomplete.min.js
+
+		ui.datepicker    = EXT:solr/Resources/JavaScript/JQuery/jquery-ui.datepicker.min.js
+		ui.datepicker.de = EXT:solr/Resources/JavaScript/JQuery/ui-i18n/jquery.ui.datepicker-de.js
+		ui.datepicker.fr = EXT:solr/Resources/JavaScript/JQuery/ui-i18n/jquery.ui.datepicker-fr.js
+		ui.datepicker.nl = EXT:solr/Resources/JavaScript/JQuery/ui-i18n/jquery.ui.datepicker-nl.js
+
+		ui.slider = EXT:solr/Resources/JavaScript/JQuery/jquery-ui.slider.min.js
+
+		suggest = EXT:solr/Resources/JavaScript/EidSuggest/suggest.js
+
+		faceting.limitExpansion     = EXT:solr/Resources/JavaScript/PiResults/results.js
+		faceting.dateRangeHelper    = EXT:solr/Resources/JavaScript/PiResults/date_range_facet.js
+		faceting.numericRangeHelper = EXT:solr/Resources/JavaScript/PiResults/numeric_range_facet.js
+	}
+
+	index {
+		additionalFields {
+
+		}
+
+			// assigns processing instructions to Solr fields during indexing, Solr field = processing instruction
+		fieldProcessingInstructions {
+			changed = timestampToIsoDate
+			created = timestampToIsoDate
+			endtime = timestampToIsoDate
+			rootline = pageUidToHierarchy
+		}
+
+		queue {
+
+			// mapping tableName.fields.SolrFieldName => TableFieldName (+ cObj processing)
+
+			pages = 1
+			pages {
+				initialization = tx_solr_indexqueue_Initializer_Page
+
+					// allowed page types (doktype) when indexing records from table "pages"
+				allowedPageTypes = 1,7
+
+				indexingPriority = 0
+
+				indexer = tx_solr_indexqueue_PageIndexer
+				indexer {
+					// add options for the indexer here
+				}
+
+					// only index standard pages
+				additionalWhereClause = doktype = 1 AND no_search = 0
+
+				fields {
+					sortSubTitle_stringS = subtitle
+				}
+			}
+
+		}
+	}
+
+	search {
+		targetPage = {$plugin.tx_solr.search.targetPage}
+
+		initializeWithEmptyQuery = 0
+		showResultsOfInitialEmptyQuery = 0
+
+		initializeWithQuery =
+		showResultsOfInitialQuery = 0
+
+		keepExistingParametersForNewSearches = 0
+
+		query {
+			allowEmptyQuery = 0
+
+			allowedSites = __solr_current_site
+
+				// qf parameter http://wiki.apache.org/solr/DisMaxQParserPlugin#qf_.28Query_Fields.29
+			queryFields = content^40.0, title^5.0, keywords^2.0, tagsH1^5.0, tagsH2H3^3.0, tagsH4H5H6^2.0, tagsInline^1.0
+
+				// fl parameter http://wiki.apache.org/solr/CommonQueryParameters#fl
+			returnFields = *, score
+
+				// see http://wiki.apache.org/solr/DisMaxRequestHandler#mm_.28Minimum_.27Should.27_Match.29
+			minimumMatch =
+
+				// see http://wiki.apache.org/solr/DisMaxRequestHandler#bf_.28Boost_Functions.29
+			boostFunction =
+
+				// see http://wiki.apache.org/solr/DisMaxQParserPlugin#bq_.28Boost_Query.29
+			boostQuery =
+
+			filter {
+
+			}
+
+			sortBy =
+		}
+
+		results {
+			resultsHighlighting = 0
+			resultsHighlighting {
+				highlightFields = content
+				fragmentSize = 200
+				fragmentSeparator = [...]
+
+				wrap = <span class="results-highlight">|</span>
+			}
+			siteHighlighting = 0
+
+			resultsPerPage = {$plugin.tx_solr.search.results.resultsPerPage}
+			resultsPerPageSwitchOptions = 10, 25, 50
+
+			pagebrowser {
+				enabled = 1
+				disableCacheHash = 1
+
+				_LOCAL_LANG.default {
+					text_first = First
+					text_prev = Previous
+					text_next = Next
+					text_last = Last
+				}
+			}
+
+			# fieldname => processing instruction, available instructions: timestamp, skip (removes the field from the result)
+			fieldProcessingInstructions {
+				changed = timestamp
+				created = timestamp
+				indexed = timestamp
+				# TODO rename the skip instruction to remove?!
+				spell = skip
+			}
+
+			fieldRenderingInstructions {
+
+				url = CASE
+				url {
+					key.field = type
+
+					default = TEXT
+					default {
+						field = url
+						htmlSpecialChars = 1
+						htmlSpecialChars.preserveEntities = 1
+					}
+				}
+
+				link = CASE
+				link {
+					key.field = type
+
+					pages  = TEXT
+					pages {
+						field = title
+
+						typolink {
+							parameter.field = uid
+						}
+					}
+
+					default  = TEXT
+					default {
+						field = title
+
+						typolink {
+							parameter.field = url
+							extTarget =
+						}
+					}
+				}
+			}
+
+			showDocumentScoreAnalysis = 0
+		}
+
+		spellchecking = 0
+		spellchecking {
+			wrap = |<div class="spelling-suggestions">###LLL:didYouMean### |</div>|
+			searchUsingSpellCheckerSuggestion = 0
+			numberOfSuggestionsToTry = 0
+		}
+
+		lastSearches = 0
+		lastSearches {
+			limit = 10
+			# tracking mode "user" or "global"
+			mode = user
+		}
+
+		frequentSearches = 0
+		frequentSearches {
+			useLowercaseKeywords = 0
+
+			minSize = 14
+			maxSize = 32
+			limit = 20
+
+			select {
+				SELECT = keywords as search_term, count(*) as hits
+				FROM = tx_solr_statistics
+				ADD_WHERE = AND num_found != 0
+				GROUP_BY = keywords
+				ORDER_BY = hits DESC, search_term ASC
+				checkRootPageId = 1
+				checkLanguage = 1
+			}
+
+			# cache lifetime in seconds (default is 86400s = 24h)
+			cacheLifetime = 86400
+		}
+
+		sorting = 0
+		sorting {
+			defaultOrder = asc
+
+			options {
+				relevance {
+					field = relevance
+					label = Relevance
+				}
+
+				title {
+					field = sortTitle
+					label = Title
+				}
+
+				type {
+					field = type
+					label = Type
+				}
+
+				author {
+					field = sortAuthor
+					label = Author
+				}
+
+				created {
+					field = created
+					label = Creation Date
+				}
+			}
+		}
+
+		faceting = 0
+		faceting {
+			minimumCount = 1
+			sortBy = count
+			limit = 10
+			singleFacetMode = 0
+			showEmptyFacets = 0
+			keepAllFacetsOnSelection = 0
+
+			facetLinkATagParams = rel="nofollow"
+
+			facetLinkUrlParameters =
+
+			facets {
+				type {
+					label = Content Type
+					field = type
+				}
+			}
+
+				// available place holders: @facetValue, @facetName, @facetLabel, @facetText
+			removeFacetLinkText = @facetLabel: @facetText
+
+			showAllLink.wrap = <li>|</li>
+		}
+
+		elevation = 0
+		elevation {
+			markElevatedResults = 1
+			forceElevation = 1
+		}
+
+	}
+
+	suggest = 0
+	suggest {
+		numberOfSuggestions = 10
+		suggestField = spell
+		forceHttps = 0
+	}
+
+	statistics = 0
+	statistics {
+		anonymizeIP = 0
+	}
+
+	viewHelpers {
+		crop {
+			maxLength = 300
+			cropIndicator = ...
+		}
+
+		sortIndicator {
+			up {
+				altText = sort ascending
+				file = EXT:solr/Resources/Public/Images/IndicatorUp.png
+			}
+			down {
+				altText = sort descending
+				file = EXT:solr/Resources/Public/Images/IndicatorDown.png
+			}
+		}
+	}
+
+	logging {
+		exceptions = 1
+
+		indexing {
+			indexQueueInitialization = 0
+			missingTypo3SearchMarkers = 1
+			pageIndexed = 0
+
+			queue {
+				pages = 0
+			}
+		}
+
+		query {
+			filters = 0
+			searchWords = 0
+			queryString = 0
+			rawPost = 0
+			rawGet = 0
+		}
+	}
+}
+
