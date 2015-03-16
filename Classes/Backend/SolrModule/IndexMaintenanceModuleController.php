@@ -33,7 +33,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * @author Ingo Renner <ingo@typo3.org>
  */
-class IndexMaintenanceModuleController extends AbstractModule {
+class IndexMaintenanceModuleController extends AbstractModuleController {
 
 	/**
 	 * Module name, used to identify a module f.e. in URL parameters.
@@ -60,35 +60,6 @@ class IndexMaintenanceModuleController extends AbstractModule {
 	}
 
 	/**
-	 * Commits pending documents to the index.
-	 *
-	 * @return void
-	 */
-	public function commitPendingDocumentsAction() {
-		$message = 'Pending documents committed.';
-		$severity = FlashMessage::OK;
-
-		try {
-			$solrServers = $this->connectionManager->getConnectionsBySite($this->site);
-			foreach($solrServers as $solrServer) {
-				$solrServer->commit(FALSE, FALSE, FALSE);
-			}
-		} catch (\Exception $e) {
-			$message = '<p>An error occured while trying to commit:</p>'
-					 . '<p>' . $e->__toString() . '</p>';
-			$severity = FlashMessage::ERROR;
-		}
-
-		$this->flashMessageContainer->add(
-			$message,
-			'',
-			$severity
-		);
-
-		$this->forward('index');
-	}
-
-	/**
 	 * Cleans the index from expired documents.
 	 *
 	 * @return void
@@ -97,7 +68,7 @@ class IndexMaintenanceModuleController extends AbstractModule {
 		$garbageCollector = GeneralUtility::makeInstance('Tx_Solr_GarbageCollector');
 		$garbageCollector->cleanIndex($this->site);
 
-		$this->flashMessageContainer->add(
+		$this->addFlashMessage(
 			'Index cleaned up.',
 			'',
 			FlashMessage::OK
@@ -131,7 +102,7 @@ class IndexMaintenanceModuleController extends AbstractModule {
 			$severity = FlashMessage::ERROR;
 		}
 
-		$this->flashMessageContainer->add(
+		$this->addFlashMessage(
 			$message,
 			'',
 			$severity
@@ -158,7 +129,7 @@ class IndexMaintenanceModuleController extends AbstractModule {
 			if (!$coreReloaded) {
 				$coresReloaded = FALSE;
 
-				$this->flashMessageContainer->add(
+				$this->addFlashMessage(
 					'Failed to reload index configuration for core "' . $coreName . '"',
 					'',
 					FlashMessage::ERROR
@@ -168,7 +139,7 @@ class IndexMaintenanceModuleController extends AbstractModule {
 		}
 
 		if ($coresReloaded) {
-			$this->flashMessageContainer->add(
+			$this->addFlashMessage(
 				'Core configuration reloaded.',
 				'',
 				FlashMessage::OK

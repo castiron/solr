@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 # Usage:
-#	sudo ./install-multi-solr.sh
-#	sudo ./install-multi-solr.sh -s 4.7.0
-#	sudo ./install-multi-solr.sh -l english,german,french
-#	sudo ./install-multi-solr.sh -s 4.7.0 -l english,german,french
+#	sudo ./install-multi-solr-existing-tomcat.sh
+#	sudo ./install-multi-solr-existing-tomcat.sh -s 4.8.1
+#	sudo ./install-multi-solr-existing-tomcat.sh -l english,german,french
+#	sudo ./install-multi-solr-existing-tomcat.sh -s 4.8.1 -l english,german,french
 
 clear
 
@@ -46,6 +46,7 @@ EOF
 
 SOLR_VERSION=""
 LANGUAGES=""
+
 while getopts "h:s:l:" OPTION
 do
      case $OPTION in
@@ -267,7 +268,7 @@ cd /opt/solr-tomcat/
 for SOLR in ${SOLR_VERSION[*]}
 do
   SOLR_VERSION_PLAIN=$SOLR_VERSION
-  SOLR_VERSION_PLAIN=$(echo $SOLR_VERSION_PLAIN|sed 's/.//g')
+  SOLR_VERSION_PLAIN=$(echo $SOLR_VERSION_PLAIN|sed 's/\.//g')
 
   if [ $SOLR_VERSION_PLAIN -le "400" ]
   then

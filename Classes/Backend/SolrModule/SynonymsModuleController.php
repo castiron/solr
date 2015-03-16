@@ -33,7 +33,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * @author Hans Höchtl <hans.hoechtl@typovision.de>
  */
-class SynonymsModuleController extends AbstractModule {
+class SynonymsModuleController extends AbstractModuleController {
 
 	/**
 	 * Module name, used to identify a module f.e. in URL parameters.
@@ -78,7 +78,7 @@ class SynonymsModuleController extends AbstractModule {
 		$synonymMap     = GeneralUtility::_POST('tx_solr_tools_solradministration');
 
 		if (empty($synonymMap['baseWord']) || empty($synonymMap['synonyms'])) {
-			$this->flashMessageContainer->add(
+			$this->addFlashMessage(
 				'Please provide a base word and synonyms.',
 				'Missing parameter',
 				FlashMessage::ERROR
@@ -92,14 +92,36 @@ class SynonymsModuleController extends AbstractModule {
 				GeneralUtility::trimExplode(',', $synonyms, TRUE)
 			);
 
-			$this->flashMessageContainer->add(
-				'"' . $synonyms . '" added as synonyms for base word "' . $baseWord . '"',
-				'',
-				FlashMessage::OK
+			$this->addFlashMessage(
+				'"' . $synonyms . '" added as synonyms for base word "' . $baseWord . '"'
 			);
 		}
 
 		$this->forward('index');
+	}
+
+	/**
+	 * Deletes a synonym mapping by its base word.
+	 *
+	 * @param string $baseWord Synonym mapping base word
+	 */
+	public function deleteSynonymsAction($baseWord) {
+		$solrConnection = $this->getSelectedCoreSolrConnection();
+		$response = $solrConnection->deleteSynonym($baseWord);
+
+		if ($response->getHttpStatus() == 200) {
+			$this->addFlashMessage(
+				'Synonym removed.'
+			);
+		} else {
+			$this->addFlashMessage(
+				'Failed to remove synonym.',
+				'An error occurred',
+				FlashMessage::ERROR
+			);
+		}
+
+		$this->forwardToIndex();
 	}
 
 

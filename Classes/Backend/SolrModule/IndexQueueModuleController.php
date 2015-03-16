@@ -33,7 +33,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * @author Ingo Renner <ingo@typo3.org>
  */
-class IndexQueueModuleController extends AbstractModule {
+class IndexQueueModuleController extends AbstractModuleController {
 
 	/**
 	 * Module name, used to identify a module f.e. in URL parameters.
@@ -86,7 +86,7 @@ class IndexQueueModuleController extends AbstractModule {
 				);
 			}
 		} else {
-			$this->flashMessageContainer->add(
+			$this->addFlashMessage(
 				'No indexing configurations selected.',
 				'Index Queue not initialized',
 				FlashMessage::WARNING
@@ -94,7 +94,7 @@ class IndexQueueModuleController extends AbstractModule {
 		}
 
 		if (!empty($initializedIndexingConfigurations)) {
-			$this->flashMessageContainer->add(
+			$this->addFlashMessage(
 				'Initialized indexing configurations: ' . implode(', ', array_keys($initializedIndexingConfigurations)),
 				'Index Queue initialized',
 				FlashMessage::OK

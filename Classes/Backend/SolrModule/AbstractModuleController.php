@@ -34,7 +34,7 @@ use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
  *
  * @author Ingo Renner <ingo@typo3.org>
  */
-abstract class AbstractModule extends ActionController implements AdministrationModuleInterface {
+abstract class AbstractModuleController extends ActionController implements AdministrationModuleInterface {
 
 	/**
 	 * Module name, used to identify a module f.e. in URL parameters.
@@ -145,6 +145,29 @@ abstract class AbstractModule extends ActionController implements Administration
 	 */
 	protected function initializeView(ViewInterface $view) {
 		$view->assign('module', $this);
+	}
+
+
+	/**
+	 * Forwards to the index action after resetting module and moduleAction
+	 * arguments to prevent execution of module actions.
+	 *
+	 * @return void
+	 */
+	protected function forwardToIndex() {
+		$requestArguments = $this->request->getArguments();
+
+		foreach ($requestArguments as $argumentName => $argumentValue) {
+			if (!in_array($argumentName, array('module', 'controller', 'site'))) {
+				unset($requestArguments[$argumentName]);
+				unset($_GET['tx_solr_tools_solradministration'][$argumentName]);
+				unset($this->arguments[$argumentName]);
+			}
+		}
+
+		$this->request->setArguments($requestArguments);
+
+		$this->forward('index');
 	}
 
 }

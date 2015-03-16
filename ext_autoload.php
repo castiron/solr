@@ -192,12 +192,8 @@ return array(
 
 		// scheduler tasks
 
-	'tx_solr_scheduler_committask' => $extensionPath . 'Scheduler/CommitTask.php',
-	'tx_solr_scheduler_committasksolrserverfield' => $extensionPath . 'Scheduler/CommitTaskSolrServerField.php',
 	'tx_solr_scheduler_indexqueueworkertask' => $extensionPath . 'Scheduler/IndexQueueWorkerTask.php',
 	'tx_solr_scheduler_indexqueueworkertaskadditionalfieldprovider' => $extensionPath . 'Scheduler/IndexQueueWorkerTaskAdditionalFieldProvider.php',
-	'tx_solr_scheduler_optimizetask' => $extensionPath . 'Scheduler/OptimizeTask.php',
-	'tx_solr_scheduler_optimizetasksolrserverfield' => $extensionPath . 'Scheduler/OptimizeTaskSolrServerField.php',
 	'tx_solr_scheduler_reindextask' => $extensionPath . 'Scheduler/ReIndexTask.php',
 	'tx_solr_scheduler_reindextaskadditionalfieldprovider' => $extensionPath . 'Scheduler/ReIndexTaskAdditionalFieldProvider.php',
 
@@ -244,6 +240,7 @@ return array(
 	'tx_solr_resultsetmodifier' => $extensionPath . 'Interfaces/ResultSetModifier.php',
 	'tx_solr_searchaware' => $extensionPath . 'Interfaces/SearchAware.php',
 	'tx_solr_searchcomponent' => $extensionPath . 'Interfaces/SearchComponent.php',
+	'tx_solr_serializedvaluedetector' => $extensionPath . 'Interfaces/SerializedValueDetector.php',
 	'tx_solr_subpartviewhelper' => $extensionPath . 'Interfaces/SubpartViewHelper.php',
 	'tx_solr_substitutepageindexer' => $extensionPath . 'Interfaces/SubstitutePageIndexer.php',
 	'tx_solr_templatemodifier' => $extensionPath . 'Interfaces/TemplateModifier.php',
