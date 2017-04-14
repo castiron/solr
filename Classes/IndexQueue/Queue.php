@@ -833,7 +833,7 @@ class Tx_Solr_IndexQueue_Queue {
 			'root = ' . $site->getRootPageId() .
 				' AND changed > indexed' .
 				' AND changed <= ' . time() .
-				' AND errors = \'\'',
+				' AND errors LIKE \'\'',
 			'',
 			'indexing_priority DESC, changed DESC, uid DESC',
 			intval($limit)
